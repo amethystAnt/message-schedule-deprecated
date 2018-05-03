@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="appbar_padding_top">8dp</dimen>
+    <dimen name="margin_floating_button">20dp</dimen>
+    <dimen name="margin_empty_list_icon">10dp</dimen>
+    <dimen name="padding_list_item">16dp</dimen>
+    <dimen name="padding_start_list_item_text">72dp</dimen>
+    <dimen name="padding_end_list_item_text">40dp</dimen>
+    <dimen name="width_height_list_item_date">40dp</dimen>
+
+    <dimen name="text_size_list_item_to">16sp</dimen>
+    <dimen name="text_size_list_item_text">14sp</dimen>
+    <dimen name="text_size_list_item_day_number">21sp</dimen>
+    <dimen name="text_size_list_item_month">9sp</dimen>
+    <dimen name="text_size_list_item_year">8sp</dimen>
+    <dimen name="text_size_list_item_time">12sp</dimen>
+
+    <dimen name="height_message_editor_row">60dp</dimen>
+    <dimen name="margin_start_message_editor_column_1">8dp</dimen>
+    <dimen name="margin_start_message_editor_column_2">45dp</dimen>
+    <dimen name="text_size_message_editor">17sp</dimen>
+
+</resources>

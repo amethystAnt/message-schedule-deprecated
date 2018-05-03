@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.patlejch.messageschedule.view.MessagesViewModel"/>
+
+        <import type="android.view.View"/>
+
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/view_no_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{viewmodel.empty ? View.VISIBLE : View.GONE}">
+
+            <TextView
+                android:id="@+id/text_no_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/tertiary_text_light"
+                android:text="@{viewmodel.noMessageText}"
+                tools:text="@string/text_no_messages_schedule"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/text_no_message"
+                android:layout_marginBottom="@dimen/margin_empty_list_icon"
+                android:tint="@android:color/tertiary_text_light"
+                android:src="@{viewmodel.noMessageImage}"
+                tools:src="@drawable/ic_query_builder_white_48dp"/>
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:adapter="@{viewmodel.scheduleAdapter}"
+            app:touchHelperRight="@{viewmodel.touchHelper}"/>
+
+    </LinearLayout>
+
+</layout>

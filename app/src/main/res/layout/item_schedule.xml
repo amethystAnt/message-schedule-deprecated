@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.patlejch.messageschedule.view.MessageItemViewModel"/>
+
+        <import type="android.view.View"/>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_list_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="@{viewmodel.visible ? View.VISIBLE : View.INVISIBLE}">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_start_list_item_text"
+            android:paddingEnd="@dimen/padding_end_list_item_text"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                tools:text="To: Best Friend, Mum, Dad, Bro, Sis, Uncle, Grandpa"
+                android:text="@{viewmodel.to}"
+                style="@style/AppTheme.ListItem.TextView.To"/>
+
+            <TextView
+                android:id="@+id/text_message_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="2"
+                tools:text="Hello, blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah "
+                android:text="@{viewmodel.text}"
+                style="@style/AppTheme.ListItem.TextView.MessageText"/>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="@dimen/width_height_list_item_date"
+            android:layout_height="@dimen/width_height_list_item_date">
+
+            <TextView
+                android:id="@+id/text_day_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:paddingTop="2dp"
+                android:textAlignment="center"
+                tools:text="01"
+                android:text="@{viewmodel.day}"
+                style="@style/AppTheme.ListItem.TextView.DayNumber"/>
+
+            <TextView
+                android:id="@+id/text_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                tools:text="Jan"
+                android:text="@{viewmodel.month}"
+                style="@style/AppTheme.ListItem.TextView.Month"/>
+
+            <TextView
+                android:id="@+id/text_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:textAlignment="center"
+                tools:text="2000"
+                android:text="@{viewmodel.year}"
+                style="@style/AppTheme.ListItem.TextView.Year"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            tools:text="00:00"
+            android:text="@{viewmodel.time}"
+            style="@style/AppTheme.ListItem.TextView.Time"/>
+
+        <Button
+            android:id="@+id/button_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:onClick="@{viewmodel.onClick}"/>
+
+    </RelativeLayout>
+
+</layout>

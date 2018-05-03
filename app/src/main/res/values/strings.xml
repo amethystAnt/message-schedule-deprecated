@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Message Schedule</string>
+
+    <string name="title_schedule">Schedule</string>
+    <string name="title_history">History</string>
+
+    <string name="notification_title_sent">Messages sent</string>
+    <string name="notification_text_sent_success">Successful parts:&#160;</string>
+    <string name="notification_text_sent_fails">Failed parts:&#160;</string>
+    <string name="notification_title_warning">Warning</string>
+    <string name="notification_text_error_sending">An unknown error has occurred while sending messages.</string>
+    <string name="notification_text_error_alarm">An internal error occurred. The next messages may not be sent.</string>
+
+    <string name="text_no_messages_schedule">No messages in schedule.</string>
+    <string name="text_no_messages_history">No messages in history.</string>
+
+    <string name="error_fetching">An error occurred when reading databases.</string>
+    <string name="error_removing_message">An error occurred when trying to remove message.</string>
+
+    <string name="alert_dialog_remove_message_title">Warning</string>
+    <string name="alert_dialog_remove_message_text">Are you sure you want to delete this message?</string>
+    <string name="alert_dialog_remove_message_positive">Yes</string>
+    <string name="alert_dialog_remove_message_negative">No</string>
+
+    <string name="text_to">To:&#160;</string>
+
+    <string name="month_jan">Jan</string>
+    <string name="month_feb">Feb</string>
+    <string name="month_mar">Mar</string>
+    <string name="month_apr">Apr</string>
+    <string name="month_may">May</string>
+    <string name="month_jun">Jun</string>
+    <string name="month_jul">Jul</string>
+    <string name="month_aug">Aug</string>
+    <string name="month_sep">Sep</string>
+    <string name="month_oct">Oct</string>
+    <string name="month_nov">Nov</string>
+    <string name="month_dec">Dec</string>
+
+    <string name="title_toolbar_message_editor">Create/Edit Message</string>
+    <string name="title_toolbar_menu_item_finish">Finish</string>
+    <string name="switch_text_send_immediately">Send immediately</string>
+    <string name="hint_chips_input_recipients">Select contacts</string>
+    <string name="hint_message_text">Message text</string>
+    <string name="error_saving_message">An unexpected error, could not save message.</string>
+    <string name="warning_title">Warning</string>
+    <string name="warning_time_in_past">Set a time in the future or check \"Send immediately\".</string>
+    <string name="warning_text_empty">The message must not be empty.</string>
+    <string name="warning_no_recipients">Set at least on recipient.</string>
+
+</resources>
