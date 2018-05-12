@@ -123,18 +123,23 @@ public class MessageEditorFragment extends Fragment {
 
         chipsInput.setFilterableList(chips);
         chipsInput.addChipsListener(new ChipsInput.ChipsListener() {
-            @Override
-            public void onChipAdded(ChipInterface chipInterface, int i) {
 
-                if(viewModel != null) {
+            private void onChange() {
+                if (viewModel != null) {
                     viewModel.chips.clear();
                     viewModel.chips.addAll(chipsInput.getSelectedChipList());
                 }
-
             }
 
             @Override
-            public void onChipRemoved(ChipInterface chipInterface, int i) { }
+            public void onChipAdded(ChipInterface chipInterface, int i) {
+                onChange();
+            }
+
+            @Override
+            public void onChipRemoved(ChipInterface chipInterface, int i) {
+                onChange();
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence) { }
