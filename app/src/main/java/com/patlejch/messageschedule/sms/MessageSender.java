@@ -20,7 +20,6 @@ import com.patlejch.messageschedule.utils.Utils;
 import com.patlejch.messageschedule.view.MainActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -116,7 +115,7 @@ public class MessageSender {
 
                         }
 
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         notifyError();
                     }
 

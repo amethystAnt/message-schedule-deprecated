@@ -1,6 +1,5 @@
 package com.patlejch.messageschedule.view;
 
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -115,7 +114,14 @@ public class MessageEditorFragment extends Fragment {
 
     private void initChipsInput(@NonNull final ChipsInput chipsInput) {
 
-        ArrayList<Message.Recipient> contacts = ContactsDataSource.getInstance().getContacts();
+        ArrayList<Message.Recipient> contacts = new ArrayList<>();
+        try {
+            contacts = ContactsDataSource.getInstance().getContacts();
+        } catch (RuntimeException e) {
+            Toast.makeText(getContext(), getString(R.string.error_permission_contacts),
+                    Toast.LENGTH_SHORT).show();
+        }
+
         ArrayList<Chip> chips = new ArrayList<>();
         for (Message.Recipient contact : contacts) {
             chips.add(new Chip(contact.number, contact.name, contact.number));

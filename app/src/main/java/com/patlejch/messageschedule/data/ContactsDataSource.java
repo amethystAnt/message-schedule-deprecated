@@ -20,7 +20,7 @@ public class ContactsDataSource {
         return INSTANCE;
     }
 
-    public ArrayList<Message.Recipient> getContacts() {
+    public ArrayList<Message.Recipient> getContacts() throws RuntimeException {
 
         ArrayList<Message.Recipient> recipients = new ArrayList<>();
 

@@ -80,12 +80,13 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(1).setIcon(R.drawable.ic_history_white_24dp);
         tabLayout.getTabAt(1).getIcon().setColorFilter(resources.getColor(R.color.material_gray_300), PorterDuff.Mode.SRC_IN);
 
+        Utils.askForPermissions(MainActivity.this);
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Utils.askForPermissions(MainActivity.this);
     }
 
     @Override

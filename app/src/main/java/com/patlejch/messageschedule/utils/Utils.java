@@ -156,21 +156,15 @@ public class Utils {
     public static void askForPermissions(@NonNull Activity activity) {
 
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.READ_CONTACTS},0);
-        }
-
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.SEND_SMS},0);
-        }
-
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.READ_SMS},0);
+                    new String[]{Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.SEND_SMS,
+                            Manifest.permission.READ_SMS},0);
         }
 
     }
