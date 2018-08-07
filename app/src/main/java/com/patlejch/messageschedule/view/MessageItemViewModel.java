@@ -11,7 +11,6 @@ import com.patlejch.messageschedule.app.MyApplication;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.utils.Utils;
 
-import java.io.IOException;
 import java.util.Calendar;
 
 public class MessageItemViewModel extends BaseObservable {
