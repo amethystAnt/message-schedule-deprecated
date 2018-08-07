@@ -2,7 +2,6 @@ package com.patlejch.messageschedule.sms;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +15,10 @@ import com.patlejch.messageschedule.alarm.SendAlarmManager;
 import com.patlejch.messageschedule.app.MyApplication;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.data.MessageDataSource;
-import com.patlejch.messageschedule.utils.Utils;
-import com.patlejch.messageschedule.view.MainActivity;
+import com.patlejch.messageschedule.event.MessageSentEvent;
+import com.patlejch.messageschedule.event.SendMessageErrorEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import static com.patlejch.messageschedule.data.MessageDataSource.MessagesListTy
 public class MessageSender {
 
     private static final String INTENT_FILTER_MESSAGE_SENT = "INTENT_FILTER_MESSAGE_SENT";
-    private static final String TAG_NOTIFICATION_ERROR = "TAG_NOTIFICATION_ERROR";
 
     public static void sendMessages(@NonNull final Context context) {
 
@@ -64,7 +64,7 @@ public class MessageSender {
 
                                 @Override
                                 public void onError() {
-                                    notifyError();
+                                    error();
                                 }
                             });
 
@@ -84,11 +84,11 @@ public class MessageSender {
 
                                 @Override
                                 public void onError() {
-                                    notifyError();
+                                    error();
                                 }
                             });
 
-                            notifyResult(message, context);
+                            EventBus.getDefault().post(new MessageSentEvent(message));
 
                         }
                     };
@@ -116,7 +116,7 @@ public class MessageSender {
                         }
 
                     } catch (Exception e) {
-                        notifyError();
+                        error();
                     }
 
                 }
@@ -125,42 +125,15 @@ public class MessageSender {
 
             @Override
             public void onError() {
-                notifyError();
+                error();
             }
         });
 
     }
 
-    private static void notifyResult(@NonNull Message message, @NonNull Context context) {
-
-        Intent mainActivityIntent = new Intent(context.getApplicationContext(),
-                MainActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(
-                context.getApplicationContext());
-        stackBuilder.addParentStack(MainActivity.class);
-        stackBuilder.addNextIntent(mainActivityIntent);
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(
-                0, PendingIntent.FLAG_UPDATE_CURRENT);
-
+    private static void error() {
         Resources resources = MyApplication.getInstance().getResources();
-        Utils.showNotification(resources.getString(R.string.notification_title_sent),
-                resources.getString(R.string.notification_text_sent_success) +
-                        Integer.toString(message.success) + "\n" +
-                        resources.getString(R.string.notification_text_sent_fails) +
-                        Integer.toString(message.fails),
-                message.key, false, true, pendingIntent);
-
-
-    }
-
-    private static void notifyError() {
-
-        Resources resources = MyApplication.getInstance().getResources();
-        Utils.showNotification(resources.getString(R.string.notification_title_warning),
-                resources.getString(R.string.notification_text_error_sending),
-                TAG_NOTIFICATION_ERROR, false, false, null);
-
-
+        EventBus.getDefault().post(new SendMessageErrorEvent(resources.getString(R.string.notification_text_error_sending)));
     }
 
 }
