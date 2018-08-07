@@ -61,11 +61,7 @@ public class MessageItemViewModel extends BaseObservable {
         String monthText = Utils.getMonthName3Letters(message.time.get(Calendar.MONTH), resources);
         month.set(monthText);
         year.set(Integer.toString(message.time.get(Calendar.YEAR)));
-        try {
-            text.set(Utils.readFile(message.textFile));
-        } catch (IOException e) {
-            text.set("");
-        }
+        text.set(message.text);
 
         String hour = Integer.toString(message.time.get(Calendar.HOUR_OF_DAY));
         hour = hour.length() == 1 ? "0" + hour : hour;

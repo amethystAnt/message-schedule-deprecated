@@ -109,7 +109,7 @@ public class MessagesViewModel extends BaseObservable {
                         viewModel.visible.set(true);
                         MessageDataSource dataSource = MessageDataSource.getInstance();
                         dataSource.removeFromList(dataSource.getMessagesDatabaseFile(type),
-                                viewModel.getKey(), true,
+                                viewModel.getKey(),
                                 new MessageDataSource.AddReplaceRemoveMessageCallback() {
                                     @Override
                                     public void onSuccess() { }

@@ -58,18 +58,10 @@ public class MessageEditorViewModel extends BaseObservable {
                 public void onMessageListFetched(ArrayList<Message> messages) {
                     for (Message message : messages) {
                         if (message.key.equals(messageKey)) {
-
                             MessageEditorViewModel.this.message = message;
                             setupDateAndTime(message.time);
-
-                            try {
-                                messageText.set(Utils.readFile(message.textFile));
-                            } catch (IOException e) {
-                                toastMessage.set(resources.getString(R.string.error_fetching));
-                            }
-
+                            messageText.set(message.text);
                             setupChips(message.recipients);
-
                             return;
                         }
                     }
@@ -147,28 +139,18 @@ public class MessageEditorViewModel extends BaseObservable {
         if (this.message != null) {
             message = this.message;
             message.recipients = recipients;
-            try {
-                message.setText(messageText.get());
-            } catch (IOException e) {
-                toastMessage.set(resources.getString(R.string.error_saving_message));
-                return;
-            }
+            message.text = messageText.get();
             message.time = calendar;
         } else {
-            try {
-                message = Message.construct(recipients, messageText.get(), calendar, 0, 0);
-            } catch (IOException e) {
-                toastMessage.set(resources.getString(R.string.error_saving_message));
-                return;
-            }
+            message = Message.construct(Utils.createMessageKey(), recipients, messageText.get(),
+                    calendar, 0, 0);
         }
 
         MessageDataSource dataSource = MessageDataSource.getInstance();
 
         if (listType == MessageDataSource.MessagesListType.LIST_HISTORY) {
             dataSource.removeFromList(dataSource.getMessagesDatabaseFile(MessageDataSource.MessagesListType.LIST_HISTORY),
-                    message.key, false,
-                    new MessageDataSource.AddReplaceRemoveMessageCallback() {
+                    message.key, new MessageDataSource.AddReplaceRemoveMessageCallback() {
                 @Override
                 public void onSuccess() { }
 

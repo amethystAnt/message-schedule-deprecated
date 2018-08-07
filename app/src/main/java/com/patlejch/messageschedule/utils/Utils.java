@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 public class Utils {
@@ -173,7 +174,7 @@ public class Utils {
 
         String key = "m" + UUID.randomUUID().toString();
         //remove all special characters, so that the key can be used as a table name
-        key = key.replaceAll("[^a-zA-Z0-9]+", "");
+        key = key.replaceAll("[^a-zA-Z0-9]+", "0");
         return key;
 
     }

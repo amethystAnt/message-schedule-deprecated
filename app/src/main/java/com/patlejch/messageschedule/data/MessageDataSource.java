@@ -56,9 +56,9 @@ public class MessageDataSource {
         task.execute(message);
     }
 
-    public void removeFromList(@NonNull File database, @NonNull String key, boolean deleteTextFile,
+    public void removeFromList(@NonNull File database, @NonNull String key,
                                AddReplaceRemoveMessageCallback callback) {
-        RemoveMessageTask task = new RemoveMessageTask(database, deleteTextFile, callback);
+        RemoveMessageTask task = new RemoveMessageTask(database, callback);
         task.execute(key);
     }
 
@@ -160,14 +160,12 @@ public class MessageDataSource {
         AddReplaceRemoveMessageCallback callback;
         AddReplaceRemoveMessageCallback preExecCallback;
 
-        boolean deleteTextFile;
         File file;
 
-        RemoveMessageTask(@NonNull File file, boolean deleteTextFile,
+        RemoveMessageTask(@NonNull File file,
                           AddReplaceRemoveMessageCallback callback) {
             preExecCallback = callback;
             this.file = file;
-            this.deleteTextFile = deleteTextFile;
         }
 
         @Override
@@ -180,7 +178,7 @@ public class MessageDataSource {
             }
 
             try {
-                MessageData.removeMessage(file, strings[0], deleteTextFile);
+                MessageData.removeMessage(file, strings[0]);
             } catch (Exception e) {
                 return e;
             }

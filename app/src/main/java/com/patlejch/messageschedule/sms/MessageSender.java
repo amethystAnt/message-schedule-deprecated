@@ -55,7 +55,7 @@ public class MessageSender {
                     message.success = 0;
                     message.fails = 0;
 
-                    messageDataSource.removeFromList(scheduleFile, message.key, false,
+                    messageDataSource.removeFromList(scheduleFile, message.key,
                             new MessageDataSource.AddReplaceRemoveMessageCallback() {
                                 @Override
                                 public void onSuccess() {
@@ -98,7 +98,7 @@ public class MessageSender {
 
                     try {
 
-                        String text = Utils.readFile(message.textFile);
+                        String text = message.text;
                         for (Message.Recipient recipient : message.recipients) {
 
                             ArrayList<String> messageParts = smsManager.divideMessage(text);

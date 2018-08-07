@@ -17,7 +17,7 @@ public class MessageData {
     public static final String MESSAGES_TABLE_NAME = "messages";
     public static final String MESSAGE_KEY_KEY = "msgkey";
     public static final String MESSAGE_RECIPIENTS_KEY = "recipients_table";
-    public static final String MESSAGE_TEXT_KEY = "text_file";
+    public static final String MESSAGE_TEXT_KEY = "msgtext";
     public static final String MESSAGE_TIME_KEY = "time";
     public static final String MESSAGE_SUCCESS_KEY = "success";
     public static final String MESSAGE_FAILS_KEY = "fails";
@@ -25,12 +25,12 @@ public class MessageData {
     public static final String RECIPIENT_NAME_KEY = "contact_name";
 
     public static final String MESSAGES_TABLE = "create table if not exists " + MESSAGES_TABLE_NAME +
-            " (" + MESSAGE_KEY_KEY + " string unique, " +
-            MESSAGE_RECIPIENTS_KEY + " string not null, " +
-            MESSAGE_TEXT_KEY + " string not null, " +
-            MESSAGE_TIME_KEY + " string, " +
-            MESSAGE_SUCCESS_KEY + " integer, " +
-            MESSAGE_FAILS_KEY + " integer)";
+            " (" + MESSAGE_KEY_KEY + " text unique, " +
+            MESSAGE_RECIPIENTS_KEY + " text not null, " +
+            MESSAGE_TEXT_KEY + " text not null, " +
+            MESSAGE_TIME_KEY + " varchar(30) not null, " +
+            MESSAGE_SUCCESS_KEY + " int, " +
+            MESSAGE_FAILS_KEY + " int)";
 
     public static ArrayList<Message> loadMessages(@NonNull File file)
             throws FileNotFoundException, SQLiteException {
@@ -49,15 +49,14 @@ public class MessageData {
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
 
-            Message message = new Message();
-            message.key = cursor.getString(cursor.getColumnIndex(MESSAGE_KEY_KEY));
+            String key = cursor.getString(cursor.getColumnIndex(MESSAGE_KEY_KEY));
 
             String recipientsTable = cursor.getString(cursor.getColumnIndex(MESSAGE_RECIPIENTS_KEY));
             database.execSQL(createRecipientsTable(recipientsTable));
 
+            ArrayList<Message.Recipient> recipients = new ArrayList<>();
             try {
 
-                ArrayList<Message.Recipient> recipients = new ArrayList<>();
                 Cursor recipientsCursor = database.query(recipientsTable, null, null, null, null, null, null);
 
                 recipientsCursor.moveToFirst();
@@ -73,14 +72,12 @@ public class MessageData {
 
                 recipientsCursor.close();
 
-                message.recipients = recipients;
 
             } catch (SQLiteException e) {
                 continue;
             }
 
-            String textPath = cursor.getString(cursor.getColumnIndex(MESSAGE_TEXT_KEY));
-            message.textFile = new File(textPath);
+            String text = cursor.getString(cursor.getColumnIndex(MESSAGE_TEXT_KEY));
 
             String time = cursor.getString(cursor.getColumnIndex(MESSAGE_TIME_KEY));
             Calendar calendar = Calendar.getInstance();
@@ -89,12 +86,11 @@ public class MessageData {
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(time.substring(6, 8)));
             calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(time.substring(8, 10)));
             calendar.set(Calendar.MINUTE, Integer.parseInt(time.substring(10, 12)));
-            message.time = calendar;
 
-            message.success = cursor.getInt(cursor.getColumnIndex(MESSAGE_SUCCESS_KEY));
-            message.fails = cursor.getInt(cursor.getColumnIndex(MESSAGE_FAILS_KEY));
+            int success = cursor.getInt(cursor.getColumnIndex(MESSAGE_SUCCESS_KEY));
+            int fails = cursor.getInt(cursor.getColumnIndex(MESSAGE_FAILS_KEY));
 
-            list.add(message);
+            list.add(Message.construct(key, recipients, text, calendar, success, fails));
             cursor.moveToNext();
 
         }
@@ -112,7 +108,7 @@ public class MessageData {
             throw new FileNotFoundException();
         }
 
-        removeMessage(file, message.key, false);
+        removeMessage(file, message.key);
 
         SQLiteDatabase database = SQLiteDatabase.openDatabase(file.getAbsolutePath(), null,
                 SQLiteDatabase.OPEN_READWRITE);
@@ -142,7 +138,7 @@ public class MessageData {
         ContentValues values = new ContentValues();
         values.put(MESSAGE_RECIPIENTS_KEY, recipientsTable);
         values.put(MESSAGE_KEY_KEY, message.key);
-        values.put(MESSAGE_TEXT_KEY, message.textFile.getAbsolutePath());
+        values.put(MESSAGE_TEXT_KEY, message.text);
         values.put(MESSAGE_TIME_KEY, time);
         values.put(MESSAGE_SUCCESS_KEY, message.success);
         values.put(MESSAGE_FAILS_KEY, message.fails);
@@ -152,7 +148,7 @@ public class MessageData {
 
     }
 
-    public static void removeMessage(@NonNull File file, @NonNull String key, boolean deleteTextFile)
+    public static void removeMessage(@NonNull File file, @NonNull String key)
             throws FileNotFoundException, SQLiteException {
 
         if (!file.exists()) {
@@ -171,12 +167,6 @@ public class MessageData {
 
         for (int i = 0; i < cursor.getCount(); i++) {
 
-            if (deleteTextFile) {
-                String textFile = cursor.getString(cursor.getColumnIndex(MESSAGE_TEXT_KEY));
-                File file1 = new File(textFile);
-                file1.delete();
-            }
-
             String recipientsTable = cursor.getString(cursor.getColumnIndex(MESSAGE_RECIPIENTS_KEY));
             query = "drop table if exists " + recipientsTable;
             database.execSQL(query);
@@ -189,13 +179,12 @@ public class MessageData {
         database.delete(MESSAGES_TABLE_NAME, where, null);
         database.close();
 
-
     }
 
     private static String createRecipientsTable(String tableName) {
         return "create table if not exists " + tableName + " (" +
-                RECIPIENT_NUMBER_KEY + " string unique not null, " +
-                RECIPIENT_NAME_KEY + " string)";
+                RECIPIENT_NUMBER_KEY + " varchar(20) unique not null, " +
+                RECIPIENT_NAME_KEY + " text)";
     }
 
 }
