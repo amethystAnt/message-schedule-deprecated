@@ -2,31 +2,30 @@ package com.patlejch.messageschedule.data;
 
 import android.database.Cursor;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class ContactsDataSource {
 
-    private static ContactsDataSource INSTANCE;
+    private SingletonComponent singletonComponent;
 
-    private ContactsDataSource() {}
-
-    public static ContactsDataSource getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new ContactsDataSource();
-        }
-        return INSTANCE;
+    @Inject
+    public ContactsDataSource(@NonNull SingletonComponent singletonComponent) {
+        this.singletonComponent = singletonComponent;
     }
 
     public ArrayList<Message.Recipient> getContacts() throws RuntimeException {
 
         ArrayList<Message.Recipient> recipients = new ArrayList<>();
 
-        Cursor cursor;
-
-        cursor = MyApplication.getInstance().getContentResolver().query(
+        Cursor cursor = singletonComponent.application().getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
         if (cursor == null) {

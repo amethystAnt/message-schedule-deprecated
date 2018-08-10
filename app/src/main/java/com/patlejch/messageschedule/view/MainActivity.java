@@ -19,6 +19,10 @@ import android.view.ViewGroup;
 
 import com.patlejch.messageschedule.R;
 import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.DaggerMessagesComponent;
+import com.patlejch.messageschedule.dagger.components.MessagesComponent;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
+import com.patlejch.messageschedule.dagger.modules.MessagesModule;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.utils.Utils;
 
@@ -30,12 +34,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_HISTORY_VM = "TAG_HISTORY_VM";
 
     private MessagesViewModel scheduleViewModel, historyViewModel;
+    private SingletonComponent singletonComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (singletonComponent == null) {
+            singletonComponent = MyApplication.getInstance().getSingletonComponent();
+        }
 
         MessagesNavigator navigator = new MessagesNavigator() {
             @Override
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         MessageFragmentsViewPagerAdapter pagerAdapter = new MessageFragmentsViewPagerAdapter(getSupportFragmentManager());
 
-        Resources resources = MyApplication.getInstance().getResources();
+        Resources resources = singletonComponent.resources();
         pagerAdapter.addViewmodel(scheduleViewModel, resources.getString(R.string.title_schedule));
         pagerAdapter.addViewmodel(historyViewModel, resources.getString(R.string.title_history));
 
@@ -103,15 +112,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //For testing purpose, default value set in onCreate() if none set before
+    public void setSingletonComponent(SingletonComponent singletonComponent) {
+        this.singletonComponent = singletonComponent;
+    }
+
     private BaseObservable findOrCreateViewModel(String tag) {
 
         ViewModelHolder<?> viewModelHolder = (ViewModelHolder<?>) getSupportFragmentManager()
                 .findFragmentByTag(tag);
         if (viewModelHolder == null || viewModelHolder.getViewModel() == null) {
 
-            MessagesViewModel viewModel= new MessagesViewModel(tag.equals(TAG_SCHEDULE_VM)
+            MessagesModule module = new MessagesModule(tag.equals(TAG_SCHEDULE_VM)
                     ? MessageDataSource.MessagesListType.LIST_SCHEDULE
                     : MessageDataSource.MessagesListType.LIST_HISTORY);
+
+            MessagesComponent component = DaggerMessagesComponent.builder()
+                    .messagesModule(module)
+                    .singletonComponent(singletonComponent)
+                    .build();
+            MessagesViewModel viewModel = new MessagesViewModel(component);
 
             viewModelHolder = ViewModelHolder.createContainer(viewModel);
             Utils.addFragmentToManager(viewModelHolder, getSupportFragmentManager(), tag);
@@ -148,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return MessagesFragment.newInstance();
+            return MessagesFragment.newInstance(singletonComponent);
         }
 
         @Override

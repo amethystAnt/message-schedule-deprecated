@@ -4,14 +4,17 @@ import android.content.res.Resources;
 import android.databinding.BaseObservable;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.MessageItemComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.utils.Utils;
 
 import java.util.Calendar;
+
+import javax.inject.Inject;
 
 public class MessageItemViewModel extends BaseObservable {
 
@@ -24,20 +27,40 @@ public class MessageItemViewModel extends BaseObservable {
     public final ObservableField<View.OnClickListener> onClick = new ObservableField<>();
     public final ObservableBoolean visible = new ObservableBoolean(true);
 
-    private final Message message;
-    private Resources resources = MyApplication.getInstance().getResources();
+    private Message message;
+    private Resources resources;
 
-    public MessageItemViewModel(Message message, View.OnClickListener onClickListener) {
-        this.message = message;
-        onClick.set(onClickListener);
-        setupFields(message);
+    public MessageItemViewModel(@NonNull MessageItemComponent component) {
+        component.inject(this);
+        setupFields();
+    }
+
+    @Inject
+    public void injectMessage(@NonNull Message message) {
+        if (this.message == null) {
+            this.message = message;
+        }
+    }
+
+    @Inject
+    public void injectOnClickListener(@NonNull View.OnClickListener onClickListener) {
+        if (onClick.get() == null) {
+            onClick.set(onClickListener);
+        }
+    }
+
+    @Inject
+    public void injectResources(@NonNull Resources resources) {
+        if (this.resources == null) {
+            this.resources = resources;
+        }
     }
 
     public String getKey() {
         return message.key;
     }
 
-    private void setupFields(Message message) {
+    private void setupFields() {
 
         String toText = resources.getText(R.string.text_to).toString();
         for (int i = 0; i < message.recipients.size(); i++) {

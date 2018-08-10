@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.patlejch.messageschedule.alarm.SendAlarmManager;
+import com.patlejch.messageschedule.app.MyApplication;
 
 public class BootReceiver extends BroadcastReceiver {
 
@@ -14,7 +15,7 @@ public class BootReceiver extends BroadcastReceiver {
                 || !intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
             return;
         }
-        SendAlarmManager.createAlarm(context);
+        SendAlarmManager.createAlarm(context, MyApplication.getInstance().getSingletonComponent());
     }
 
 }

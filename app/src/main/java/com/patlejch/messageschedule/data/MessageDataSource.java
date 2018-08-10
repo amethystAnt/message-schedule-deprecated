@@ -3,29 +3,33 @@ package com.patlejch.messageschedule.data;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class MessageDataSource {
 
-    private static MessageDataSource INSTANCE = null;
     private static final String DB_SCHEDULE = "schedule.db";
     private static final String DB_HISTORY = "history.db";
+
+    private MessageDatabaseAdapter databaseAdapter;
+    private SingletonComponent singletonComponent;
 
     public enum MessagesListType {
         LIST_SCHEDULE, LIST_HISTORY
     }
 
-    private MessageDataSource() {}
-
-    public static MessageDataSource getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new MessageDataSource();
-        }
-        return INSTANCE;
+    @Inject
+    public MessageDataSource(@NonNull MessageDatabaseAdapter databaseAdapter,
+                             @NonNull SingletonComponent component) {
+        this.databaseAdapter = databaseAdapter;
+        singletonComponent = component;
     }
 
     public File getMessagesDatabaseFile(@NonNull MessagesListType type) {
@@ -35,7 +39,7 @@ public class MessageDataSource {
             filename = DB_HISTORY;
         }
 
-        File file = new File(MyApplication.getInstance().getFilesDir().getAbsolutePath()
+        File file = new File(singletonComponent.application().getFilesDir().getAbsolutePath()
                 + "/" + filename);
         try {
             file.createNewFile();
@@ -46,19 +50,19 @@ public class MessageDataSource {
     }
 
     public void fetchList(@NonNull File database, MessageListFetchCallback callback) {
-        FetchMessageListTask task = new FetchMessageListTask(callback);
+        FetchMessageListTask task = new FetchMessageListTask(databaseAdapter, callback);
         task.execute(database);
     }
 
     public void addOrReplaceInList(@NonNull File database, @NonNull Message message,
                                    AddReplaceRemoveMessageCallback callback) {
-        AddOrReplaceMessageTask task = new AddOrReplaceMessageTask(database, callback);
+        AddOrReplaceMessageTask task = new AddOrReplaceMessageTask(database, databaseAdapter, callback);
         task.execute(message);
     }
 
     public void removeFromList(@NonNull File database, @NonNull String key,
                                AddReplaceRemoveMessageCallback callback) {
-        RemoveMessageTask task = new RemoveMessageTask(database, callback);
+        RemoveMessageTask task = new RemoveMessageTask(database, databaseAdapter, callback);
         task.execute(key);
     }
 
@@ -72,8 +76,12 @@ public class MessageDataSource {
         private MessageListFetchCallback preExecCallback;
         private MessageListFetchCallback callback;
 
-        FetchMessageListTask(MessageListFetchCallback callback) {
+        MessageDatabaseAdapter databaseAdapter;
+
+        FetchMessageListTask(@NonNull MessageDatabaseAdapter databaseAdapter,
+                             MessageListFetchCallback callback) {
             preExecCallback = callback;
+            this.databaseAdapter = databaseAdapter;
         }
 
         @Override
@@ -86,7 +94,7 @@ public class MessageDataSource {
             }
 
             try {
-                return MessageData.loadMessages(files[0]);
+                return databaseAdapter.loadMessages(files[0]);
             } catch (Exception e) {
                 return null;
             }
@@ -118,10 +126,13 @@ public class MessageDataSource {
         AddReplaceRemoveMessageCallback preExecCallback;
 
         File file;
+        MessageDatabaseAdapter databaseAdapter;
 
-        AddOrReplaceMessageTask(@NonNull File file, AddReplaceRemoveMessageCallback callback) {
+        AddOrReplaceMessageTask(@NonNull File file, @NonNull MessageDatabaseAdapter databaseAdapter,
+                                AddReplaceRemoveMessageCallback callback) {
             preExecCallback = callback;
             this.file = file;
+            this.databaseAdapter = databaseAdapter;
         }
 
         @Override
@@ -133,7 +144,7 @@ public class MessageDataSource {
             }
 
             try {
-                MessageData.addOrReplaceMessage(file, messages[0]);
+                databaseAdapter.addOrReplaceMessage(file, messages[0]);
             } catch (Exception e) {
                 return e;
             }
@@ -161,11 +172,13 @@ public class MessageDataSource {
         AddReplaceRemoveMessageCallback preExecCallback;
 
         File file;
+        MessageDatabaseAdapter databaseAdapter;
 
-        RemoveMessageTask(@NonNull File file,
+        RemoveMessageTask(@NonNull File file, @NonNull MessageDatabaseAdapter databaseAdapter,
                           AddReplaceRemoveMessageCallback callback) {
             preExecCallback = callback;
             this.file = file;
+            this.databaseAdapter = databaseAdapter;
         }
 
         @Override
@@ -178,7 +191,7 @@ public class MessageDataSource {
             }
 
             try {
-                MessageData.removeMessage(file, strings[0]);
+                databaseAdapter.removeMessage(file, strings[0]);
             } catch (Exception e) {
                 return e;
             }

@@ -1,20 +1,27 @@
 package com.patlejch.messageschedule.alarm;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.patlejch.messageschedule.app.MyApplication;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.fileobserver.FixedFileObserver;
 
+import javax.inject.Inject;
+
 import static android.os.FileObserver.MODIFY;
 
 public class ScheduleFileObserver extends FixedFileObserver {
 
-    public ScheduleFileObserver() {
-        super(MessageDataSource.getInstance()
-                        .getMessagesDatabaseFile(MessageDataSource.MessagesListType.LIST_SCHEDULE)
+    private MyApplication app;
+
+    @Inject
+    public ScheduleFileObserver(@NonNull MessageDataSource dataSource,
+                                @NonNull MyApplication app) {
+        super(dataSource.getMessagesDatabaseFile(MessageDataSource.MessagesListType.LIST_SCHEDULE)
                         .getAbsolutePath(),
                 MODIFY);
+        this.app = app;
     }
 
     @Override
@@ -22,7 +29,7 @@ public class ScheduleFileObserver extends FixedFileObserver {
         if (event != MODIFY) {
             return;
         }
-        SendAlarmManager.createAlarm(MyApplication.getInstance());
+        SendAlarmManager.createAlarm(app, app.getSingletonComponent());
     }
 
 }

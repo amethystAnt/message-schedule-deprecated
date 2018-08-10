@@ -3,6 +3,9 @@ package com.patlejch.messageschedule.app;
 import android.app.Application;
 
 import com.patlejch.messageschedule.alarm.ScheduleFileObserver;
+import com.patlejch.messageschedule.dagger.components.DaggerScheduleObserverComponent;
+import com.patlejch.messageschedule.dagger.components.DaggerSingletonComponent;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.notification.MessageSentNotification;
 
 public class MyApplication extends Application {
@@ -11,6 +14,7 @@ public class MyApplication extends Application {
 
     private ScheduleFileObserver scheduleObserver;
     private MessageSentNotification messageSentNotification;
+    private SingletonComponent singletonComponent;
 
     public static MyApplication getInstance() {
         return INSTANCE;
@@ -21,10 +25,15 @@ public class MyApplication extends Application {
         super.onCreate();
         INSTANCE = this;
 
-        scheduleObserver = new ScheduleFileObserver();
+        singletonComponent = DaggerSingletonComponent.create();
+        scheduleObserver = DaggerScheduleObserverComponent.builder()
+                .singletonComponent(singletonComponent)
+                .build()
+                .observer();
         scheduleObserver.startWatching();
 
-        messageSentNotification = new MessageSentNotification();
+        messageSentNotification = new MessageSentNotification(singletonComponent);
+
 
     }
 
@@ -34,4 +43,9 @@ public class MyApplication extends Application {
         scheduleObserver.stopWatching();
         super.onTerminate();
     }
+
+    public SingletonComponent getSingletonComponent() {
+        return singletonComponent;
+    }
+
 }

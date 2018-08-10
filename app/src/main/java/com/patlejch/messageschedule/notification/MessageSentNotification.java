@@ -8,7 +8,7 @@ import android.content.res.Resources;
 import android.support.annotation.NonNull;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.event.MessageSentEvent;
 import com.patlejch.messageschedule.event.SendMessageErrorEvent;
@@ -22,8 +22,11 @@ public class MessageSentNotification {
 
     private static final String TAG_NOTIFICATION_ERROR = "TAG_NOTIFICATION_ERROR";
 
-    public MessageSentNotification() {
+    private SingletonComponent singletonComponent;
+
+    public MessageSentNotification(@NonNull SingletonComponent singletonComponent) {
         start();
+        this.singletonComponent = singletonComponent;
     }
 
     public void start() {
@@ -39,7 +42,7 @@ public class MessageSentNotification {
 
         Message message = event.message;
 
-        Context context = MyApplication.getInstance();
+        Context context = singletonComponent.application();
         Intent mainActivityIntent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
@@ -47,13 +50,13 @@ public class MessageSentNotification {
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(
                 0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Resources resources = MyApplication.getInstance().getResources();
+        Resources resources = singletonComponent.resources();
         Utils.showNotification(resources.getString(R.string.notification_title_sent),
                 resources.getString(R.string.notification_text_sent_success) +
                         Integer.toString(message.success) + "\n" +
                         resources.getString(R.string.notification_text_sent_fails) +
                         Integer.toString(message.fails),
-                message.key, false, true, pendingIntent);
+                message.key, false, true, pendingIntent, context);
 
 
     }
@@ -61,9 +64,9 @@ public class MessageSentNotification {
     @Subscribe
     public void notifyError(@NonNull SendMessageErrorEvent event) {
 
-        Resources resources = MyApplication.getInstance().getResources();
+        Resources resources = singletonComponent.resources();
         Utils.showNotification(resources.getString(R.string.notification_title_warning), event.error,
-                TAG_NOTIFICATION_ERROR, false, false, null);
+                TAG_NOTIFICATION_ERROR, false, false, null, singletonComponent.application());
 
     }
 

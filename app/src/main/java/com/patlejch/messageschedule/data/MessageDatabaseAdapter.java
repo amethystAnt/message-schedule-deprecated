@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MessageData {
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+public class MessageDatabaseAdapter {
 
     public static final String MESSAGES_TABLE_NAME = "messages";
     public static final String MESSAGE_KEY_KEY = "msgkey";
@@ -32,7 +36,10 @@ public class MessageData {
             MESSAGE_SUCCESS_KEY + " int, " +
             MESSAGE_FAILS_KEY + " int)";
 
-    public static ArrayList<Message> loadMessages(@NonNull File file)
+    @Inject
+    public MessageDatabaseAdapter() { }
+
+    public ArrayList<Message> loadMessages(@NonNull File file)
             throws FileNotFoundException, SQLiteException {
 
         if (!file.exists()) {
@@ -101,7 +108,7 @@ public class MessageData {
 
     }
 
-    public static void addOrReplaceMessage(@NonNull File file, @NonNull Message message)
+    public void addOrReplaceMessage(@NonNull File file, @NonNull Message message)
             throws FileNotFoundException, SQLiteException {
 
         if (!file.exists()) {
@@ -148,7 +155,7 @@ public class MessageData {
 
     }
 
-    public static void removeMessage(@NonNull File file, @NonNull String key)
+    public void removeMessage(@NonNull File file, @NonNull String key)
             throws FileNotFoundException, SQLiteException {
 
         if (!file.exists()) {
@@ -181,7 +188,7 @@ public class MessageData {
 
     }
 
-    private static String createRecipientsTable(String tableName) {
+    private String createRecipientsTable(String tableName) {
         return "create table if not exists " + tableName + " (" +
                 RECIPIENT_NUMBER_KEY + " varchar(20) unique not null, " +
                 RECIPIENT_NAME_KEY + " text)";

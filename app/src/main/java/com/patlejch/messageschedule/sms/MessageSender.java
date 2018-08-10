@@ -12,7 +12,7 @@ import android.telephony.SmsManager;
 
 import com.patlejch.messageschedule.R;
 import com.patlejch.messageschedule.alarm.SendAlarmManager;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.event.MessageSentEvent;
@@ -31,9 +31,9 @@ public class MessageSender {
 
     private static final String INTENT_FILTER_MESSAGE_SENT = "INTENT_FILTER_MESSAGE_SENT";
 
-    public static void sendMessages(@NonNull final Context context) {
+    public static void sendMessages(@NonNull final Context context, @NonNull final SingletonComponent singletonComponent) {
 
-        final MessageDataSource messageDataSource = MessageDataSource.getInstance();
+        final MessageDataSource messageDataSource = singletonComponent.messageDataSource();
         final File scheduleFile = messageDataSource.getMessagesDatabaseFile(LIST_SCHEDULE);
         final File historyFile = messageDataSource.getMessagesDatabaseFile(LIST_HISTORY);
 
@@ -59,12 +59,12 @@ public class MessageSender {
                             new MessageDataSource.AddReplaceRemoveMessageCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    SendAlarmManager.createAlarm(context);
+                                    SendAlarmManager.createAlarm(context, singletonComponent);
                                 }
 
                                 @Override
                                 public void onError() {
-                                    error();
+                                    error(singletonComponent);
                                 }
                             });
 
@@ -84,7 +84,7 @@ public class MessageSender {
 
                                 @Override
                                 public void onError() {
-                                    error();
+                                    error(singletonComponent);
                                 }
                             });
 
@@ -116,7 +116,7 @@ public class MessageSender {
                         }
 
                     } catch (Exception e) {
-                        error();
+                        error(singletonComponent);
                     }
 
                 }
@@ -125,14 +125,14 @@ public class MessageSender {
 
             @Override
             public void onError() {
-                error();
+                error(singletonComponent);
             }
         });
 
     }
 
-    private static void error() {
-        Resources resources = MyApplication.getInstance().getResources();
+    private static void error(@NonNull SingletonComponent component) {
+        Resources resources = component.resources();
         EventBus.getDefault().post(new SendMessageErrorEvent(resources.getString(R.string.notification_text_error_sending)));
     }
 

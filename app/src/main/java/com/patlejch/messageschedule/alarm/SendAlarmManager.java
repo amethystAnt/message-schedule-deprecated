@@ -9,7 +9,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.utils.Utils;
@@ -40,9 +40,10 @@ public class SendAlarmManager {
 
     }
 
-    public static void createAlarm(@NonNull final Context context) {
+    public static void createAlarm(@NonNull final Context context,
+                                   @NonNull final SingletonComponent singletonComponent) {
 
-        MessageDataSource messageDataSource = MessageDataSource.getInstance();
+        MessageDataSource messageDataSource = singletonComponent.messageDataSource();
         messageDataSource.fetchList(messageDataSource.getMessagesDatabaseFile(MessageDataSource
                         .MessagesListType.LIST_SCHEDULE),
                 new MessageDataSource.MessageListFetchCallback() {
@@ -61,10 +62,11 @@ public class SendAlarmManager {
 
                     @Override
                     public void onError() {
-                        Resources resources = MyApplication.getInstance().getResources();
+                        Resources resources = singletonComponent.resources();
                         Utils.showNotification(resources.getString(R.string.notification_title_warning),
                                 resources.getString(R.string.notification_text_error_alarm),
-                                TAG_NOTIFICATION_ERROR_ALARM, false, false, null);
+                                TAG_NOTIFICATION_ERROR_ALARM, false, false, null,
+                                singletonComponent.application());
 
                     }
                 });

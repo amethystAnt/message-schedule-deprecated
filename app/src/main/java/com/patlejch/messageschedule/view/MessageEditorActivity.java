@@ -12,6 +12,9 @@ import android.view.MenuItem;
 
 import com.patlejch.messageschedule.R;
 import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.DaggerMessageEditorComponent;
+import com.patlejch.messageschedule.dagger.components.MessageEditorComponent;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.utils.Utils;
 
 public class MessageEditorActivity extends AppCompatActivity {
@@ -20,11 +23,16 @@ public class MessageEditorActivity extends AppCompatActivity {
     private static final String TAG_EDITOR_VM = "TAG_EDITOR_VM";
 
     private MessageEditorViewModel viewModel;
+    private SingletonComponent singletonComponent;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        if (singletonComponent == null) {
+            singletonComponent = MyApplication.getInstance().getSingletonComponent();
+        }
 
         setContentView(R.layout.activity_message_editor);
 
@@ -45,7 +53,7 @@ public class MessageEditorActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle(MyApplication.getInstance().getResources().getString(R.string.title_toolbar_message_editor));
+            actionBar.setTitle(singletonComponent.resources().getString(R.string.title_toolbar_message_editor));
         }
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -81,11 +89,16 @@ public class MessageEditorActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //for testing purpose, default value set in onCreate()
+    public void setSingletonComponent(SingletonComponent component) {
+        singletonComponent = component;
+    }
+
     private MessageEditorFragment findOrCreateFragment() {
 
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG_EDITOR_FRAGMENT);
         if (fragment == null) {
-            fragment = MessageEditorFragment.newInstance();
+            fragment = MessageEditorFragment.newInstance(singletonComponent);
             Bundle bundle = new Bundle();
             bundle.putString(MessageEditorFragment.ARGUMENT_MESSAGE_ID,
                     getIntent().getStringExtra(MessageEditorFragment.ARGUMENT_MESSAGE_ID));
@@ -105,7 +118,11 @@ public class MessageEditorActivity extends AppCompatActivity {
                 .findFragmentByTag(TAG_EDITOR_VM);
         if (viewModelHolder == null || viewModelHolder.getViewModel() == null) {
 
-            MessageEditorViewModel viewModel = new MessageEditorViewModel();
+            MessageEditorComponent component = DaggerMessageEditorComponent
+                    .builder()
+                    .singletonComponent(singletonComponent)
+                    .build();
+            MessageEditorViewModel viewModel = new MessageEditorViewModel(component);
 
             viewModelHolder = ViewModelHolder.createContainer(viewModel);
             Utils.addFragmentToManager(viewModelHolder, getSupportFragmentManager(), TAG_EDITOR_VM);

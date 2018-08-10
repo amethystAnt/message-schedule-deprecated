@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.databinding.FragmentMessagesBinding;
 
 public class MessagesFragment extends Fragment {
@@ -24,9 +24,12 @@ public class MessagesFragment extends Fragment {
     private FragmentMessagesBinding binding;
     private ObservableField.OnPropertyChangedCallback toastCallback;
     private ObservableField.OnPropertyChangedCallback removeMessageCallback;
+    private SingletonComponent singletonComponent;
 
-    public static MessagesFragment newInstance() {
-        return new MessagesFragment();
+    public static MessagesFragment newInstance(SingletonComponent singletonComponent) {
+        MessagesFragment fragment =  new MessagesFragment();
+        fragment.setSingletonComponent(singletonComponent);
+        return fragment;
     }
 
     @Nullable
@@ -64,6 +67,10 @@ public class MessagesFragment extends Fragment {
         super.onDestroy();
     }
 
+    public void setSingletonComponent(SingletonComponent singletonComponent) {
+        this.singletonComponent = singletonComponent;
+    }
+
     public void setViewModel(@NonNull final MessagesViewModel viewModel) {
 
         removeCallbacks();
@@ -95,7 +102,9 @@ public class MessagesFragment extends Fragment {
                     return;
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity() == null ? MyApplication.getInstance() : getActivity());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity() == null
+                        ? singletonComponent.application()
+                        : getActivity());
                 builder.setTitle(R.string.alert_dialog_remove_message_title);
                 builder.setMessage(R.string.alert_dialog_remove_message_text);
                 builder.setPositiveButton(R.string.alert_dialog_remove_message_positive, callbacks.positive);

@@ -17,8 +17,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
-import com.patlejch.messageschedule.data.ContactsDataSource;
+import com.patlejch.messageschedule.dagger.components.DaggerSingletonComponent;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.databinding.FragmentMessageEditorBinding;
@@ -40,10 +40,13 @@ public class MessageEditorFragment extends Fragment {
     private FragmentMessageEditorBinding binding;
     private Observable.OnPropertyChangedCallback toastCallback;
     private Observable.OnPropertyChangedCallback warningsCallback;
+    private SingletonComponent singletonComponent;
 
     public MessageEditorFragment() { }
 
-    public static MessageEditorFragment newInstance() {
+    public static MessageEditorFragment newInstance(@NonNull SingletonComponent singletonComponent) {
+        MessageEditorFragment fragment = new MessageEditorFragment();
+        fragment.setSingletonComponent(singletonComponent);
         return new MessageEditorFragment();
     }
 
@@ -112,11 +115,15 @@ public class MessageEditorFragment extends Fragment {
         super.onDestroy();
     }
 
+    public void setSingletonComponent(SingletonComponent singletonComponent) {
+        this.singletonComponent = singletonComponent;
+    }
+
     private void initChipsInput(@NonNull final ChipsInput chipsInput) {
 
         ArrayList<Message.Recipient> contacts = new ArrayList<>();
         try {
-            contacts = ContactsDataSource.getInstance().getContacts();
+            contacts = DaggerSingletonComponent.create().contactsDataSource().getContacts();//todo proper data injection
         } catch (RuntimeException e) {
             Toast.makeText(getContext(), getString(R.string.error_permission_contacts),
                     Toast.LENGTH_SHORT).show();
@@ -177,7 +184,7 @@ public class MessageEditorFragment extends Fragment {
                 if (warnings == null) {
                     return;
                 }
-                WarningsDialog dialog = new WarningsDialog();
+                WarningsDialog dialog = WarningsDialog.newInstance(singletonComponent);
                 dialog.setWarnings(warnings);
 
                 FragmentManager fragmentManager = getFragmentManager();
@@ -208,6 +215,17 @@ public class MessageEditorFragment extends Fragment {
     public static class WarningsDialog extends DialogFragment {
 
         private List<String> warnings;
+        private SingletonComponent singletonComponent;
+
+        public static WarningsDialog newInstance(SingletonComponent singletonComponent) {
+            WarningsDialog dialog = new WarningsDialog();
+            dialog.setSingletonComponent(singletonComponent);
+            return dialog;
+        }
+
+        public void setSingletonComponent(SingletonComponent singletonComponent) {
+            this.singletonComponent = singletonComponent;
+        }
 
         public void setWarnings(List<String> warnings) {
             this.warnings = warnings;
@@ -220,7 +238,7 @@ public class MessageEditorFragment extends Fragment {
             Dialog dialog;
             Activity activity = getActivity();
             AlertDialog.Builder builder = new AlertDialog.Builder(activity == null
-                    ? MyApplication.getInstance() : activity);
+                    ? singletonComponent.application() : activity);
             builder.setTitle(getResources().getString(R.string.warning_title));
 
             if (warnings == null) {

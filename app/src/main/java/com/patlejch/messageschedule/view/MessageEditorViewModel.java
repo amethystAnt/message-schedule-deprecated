@@ -7,20 +7,22 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.databinding.ObservableList;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.MessageEditorComponent;
 import com.patlejch.messageschedule.data.Message;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.utils.Utils;
 import com.pchmn.materialchips.model.Chip;
 import com.pchmn.materialchips.model.ChipInterface;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class MessageEditorViewModel extends BaseObservable {
 
@@ -35,13 +37,28 @@ public class MessageEditorViewModel extends BaseObservable {
     public ObservableField<String> toastMessage = new ObservableField<>();
     public ObservableField<List<String>> warningsList = new ObservableField<>();
 
+    private MessageDataSource dataSource;
+    private Resources resources;
     private MessageDataSource.MessagesListType listType;
     private Message message;
     private MessageEditorNavigator navigator;
-    private Resources resources;
 
-    public MessageEditorViewModel() {
-        resources = MyApplication.getInstance().getResources();
+    public MessageEditorViewModel(@NonNull MessageEditorComponent component) {
+        component.inject(this);
+    }
+
+    @Inject
+    public void injectDataSource(@NonNull MessageDataSource dataSource) {
+        if (this.dataSource == null) {
+            this.dataSource = dataSource;
+        }
+    }
+
+    @Inject
+    public void injectResources(@NonNull Resources resources) {
+        if (this.resources == null) {
+            this.resources = resources;
+        }
     }
 
     public void start(@Nullable final String messageKey, @Nullable MessageDataSource.MessagesListType listType) {
@@ -52,7 +69,6 @@ public class MessageEditorViewModel extends BaseObservable {
 
         if (messageKey != null && listType != null) {
 
-            MessageDataSource dataSource = MessageDataSource.getInstance();
             dataSource.fetchList(dataSource.getMessagesDatabaseFile(listType), new MessageDataSource.MessageListFetchCallback() {
                 @Override
                 public void onMessageListFetched(ArrayList<Message> messages) {
@@ -145,8 +161,6 @@ public class MessageEditorViewModel extends BaseObservable {
             message = Message.construct(Utils.createMessageKey(), recipients, messageText.get(),
                     calendar, 0, 0);
         }
-
-        MessageDataSource dataSource = MessageDataSource.getInstance();
 
         if (listType == MessageDataSource.MessagesListType.LIST_HISTORY) {
             dataSource.removeFromList(dataSource.getMessagesDatabaseFile(MessageDataSource.MessagesListType.LIST_HISTORY),

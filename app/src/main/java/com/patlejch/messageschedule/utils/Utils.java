@@ -18,7 +18,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.patlejch.messageschedule.R;
-import com.patlejch.messageschedule.app.MyApplication;
 import com.patlejch.messageschedule.data.Message;
 
 import java.io.BufferedReader;
@@ -29,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 public class Utils {
@@ -53,9 +51,9 @@ public class Utils {
 
     public static void showNotification(@NonNull String title, @NonNull String text,
                                         @NonNull String tag, boolean ongoing, boolean autoCancel,
-                                        PendingIntent intent) {
+                                        @NonNull PendingIntent intent,
+                                        @NonNull Context context) {
 
-        Context context = MyApplication.getInstance();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -81,9 +79,8 @@ public class Utils {
 
     }
 
-    public static void cancelNotification(@NonNull String tag) {
+    public static void cancelNotification(@NonNull String tag, @NonNull Context context) {
 
-        Context context = MyApplication.getInstance();
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         if (notificationManager != null) {
