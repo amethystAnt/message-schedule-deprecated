@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.patlejch.messageschedule.app.MyApplication;
+import com.patlejch.messageschedule.dagger.components.SingletonComponent;
 import com.patlejch.messageschedule.data.MessageDataSource;
 import com.patlejch.messageschedule.fileobserver.FixedFileObserver;
 
@@ -13,15 +14,15 @@ import static android.os.FileObserver.MODIFY;
 
 public class ScheduleFileObserver extends FixedFileObserver {
 
-    private MyApplication app;
+    private SingletonComponent singletonComponent;
 
     @Inject
     public ScheduleFileObserver(@NonNull MessageDataSource dataSource,
-                                @NonNull MyApplication app) {
+                                @NonNull SingletonComponent component) {
         super(dataSource.getMessagesDatabaseFile(MessageDataSource.MessagesListType.LIST_SCHEDULE)
                         .getAbsolutePath(),
                 MODIFY);
-        this.app = app;
+        this.singletonComponent = component;
     }
 
     @Override
@@ -29,7 +30,7 @@ public class ScheduleFileObserver extends FixedFileObserver {
         if (event != MODIFY) {
             return;
         }
-        SendAlarmManager.createAlarm(app, app.getSingletonComponent());
+        SendAlarmManager.createAlarm(singletonComponent.application(), singletonComponent);
     }
 
 }

@@ -3,6 +3,7 @@ package com.patlejch.messageschedule.alarm;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.telephony.SmsManager;
 
 import com.patlejch.messageschedule.app.MyApplication;
 import com.patlejch.messageschedule.sms.MessageSender;
@@ -19,7 +20,8 @@ public class SendAlarmReceiver extends BroadcastReceiver {
             return;
         }
 
-        MessageSender.sendMessages(context, MyApplication.getInstance().getSingletonComponent());
+        MessageSender.sendMessages(MyApplication.getInstance().getSingletonComponent(),
+                new MessageSender.SmsManagerTestableWrapper(SmsManager.getDefault()));
 
     }
 

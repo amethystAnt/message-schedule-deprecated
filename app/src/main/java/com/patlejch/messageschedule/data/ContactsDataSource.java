@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 
-import com.patlejch.messageschedule.dagger.components.SingletonComponent;
+import com.patlejch.messageschedule.app.MyApplication;
 
 import java.util.ArrayList;
 
@@ -14,18 +14,18 @@ import javax.inject.Singleton;
 @Singleton
 public class ContactsDataSource {
 
-    private SingletonComponent singletonComponent;
+    private MyApplication app;
 
     @Inject
-    public ContactsDataSource(@NonNull SingletonComponent singletonComponent) {
-        this.singletonComponent = singletonComponent;
+    public ContactsDataSource(@NonNull MyApplication app) {
+        this.app = app;
     }
 
     public ArrayList<Message.Recipient> getContacts() throws RuntimeException {
 
         ArrayList<Message.Recipient> recipients = new ArrayList<>();
 
-        Cursor cursor = singletonComponent.application().getContentResolver().query(
+        Cursor cursor = app.getContentResolver().query(
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
         if (cursor == null) {

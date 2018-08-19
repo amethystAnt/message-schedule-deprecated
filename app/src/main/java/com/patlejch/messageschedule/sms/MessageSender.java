@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.SmsManager;
 
 import com.patlejch.messageschedule.R;
@@ -31,7 +32,8 @@ public class MessageSender {
 
     private static final String INTENT_FILTER_MESSAGE_SENT = "INTENT_FILTER_MESSAGE_SENT";
 
-    public static void sendMessages(@NonNull final Context context, @NonNull final SingletonComponent singletonComponent) {
+    public static void sendMessages(@NonNull final SingletonComponent singletonComponent,
+                                    @NonNull final SmsManagerTestableWrapper smsManager) {
 
         final MessageDataSource messageDataSource = singletonComponent.messageDataSource();
         final File scheduleFile = messageDataSource.getMessagesDatabaseFile(LIST_SCHEDULE);
@@ -45,7 +47,6 @@ public class MessageSender {
                 //for this reason we're not keeping a calendar object, but instead calling Calendar.getInstance() on this line
                 Calendar timeNow = Calendar.getInstance();
 
-                SmsManager smsManager = SmsManager.getDefault();
                 for (final Message message: messages) {
 
                     if (message.time.after(timeNow)) {
@@ -59,7 +60,8 @@ public class MessageSender {
                             new MessageDataSource.AddReplaceRemoveMessageCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    SendAlarmManager.createAlarm(context, singletonComponent);
+                                    SendAlarmManager.createAlarm(singletonComponent.application(),
+                                            singletonComponent);
                                 }
 
                                 @Override
@@ -93,7 +95,7 @@ public class MessageSender {
                         }
                     };
 
-                    context.getApplicationContext().registerReceiver(sentReceiver,
+                    singletonComponent.application().registerReceiver(sentReceiver,
                             new IntentFilter(INTENT_FILTER_MESSAGE_SENT));
 
                     try {
@@ -102,7 +104,7 @@ public class MessageSender {
                         for (Message.Recipient recipient : message.recipients) {
 
                             ArrayList<String> messageParts = smsManager.divideMessage(text);
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(singletonComponent.application(),
                                     0, new Intent(INTENT_FILTER_MESSAGE_SENT),
                                     PendingIntent.FLAG_UPDATE_CURRENT);
                             ArrayList<PendingIntent> pendingIntents = new ArrayList<>();
@@ -110,8 +112,8 @@ public class MessageSender {
                                 pendingIntents.add(pendingIntent);
                             }
 
-                            smsManager.sendMultipartTextMessage(recipient.number, null,
-                                    messageParts, pendingIntents, null);
+                            smsManager.sendMultipartTextMessage(recipient.number, messageParts,
+                                    pendingIntents);
 
                         }
 
@@ -134,6 +136,25 @@ public class MessageSender {
     private static void error(@NonNull SingletonComponent component) {
         Resources resources = component.resources();
         EventBus.getDefault().post(new SendMessageErrorEvent(resources.getString(R.string.notification_text_error_sending)));
+    }
+
+    public static class SmsManagerTestableWrapper {
+
+        private SmsManager smsManager;
+
+        public SmsManagerTestableWrapper(@NonNull SmsManager smsManager) {
+            this.smsManager = smsManager;
+        }
+
+        public void sendMultipartTextMessage(@NonNull String number, @NonNull ArrayList<String> parts,
+                                        @Nullable ArrayList<PendingIntent> sentIntents) {
+            smsManager.sendMultipartTextMessage(number, null, parts, sentIntents, null);
+        }
+
+        public ArrayList<String> divideMessage(@NonNull String text) {
+            return smsManager.divideMessage(text);
+        }
+
     }
 
 }

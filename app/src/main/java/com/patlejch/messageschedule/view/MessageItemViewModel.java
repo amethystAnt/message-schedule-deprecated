@@ -62,7 +62,7 @@ public class MessageItemViewModel extends BaseObservable {
 
     private void setupFields() {
 
-        String toText = resources.getText(R.string.text_to).toString();
+        String toText = resources.getString(R.string.text_to);
         for (int i = 0; i < message.recipients.size(); i++) {
             Message.Recipient recipient = message.recipients.get(i);
             String s = recipient.number;

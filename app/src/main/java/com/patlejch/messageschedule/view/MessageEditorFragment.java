@@ -47,7 +47,7 @@ public class MessageEditorFragment extends Fragment {
     public static MessageEditorFragment newInstance(@NonNull SingletonComponent singletonComponent) {
         MessageEditorFragment fragment = new MessageEditorFragment();
         fragment.setSingletonComponent(singletonComponent);
-        return new MessageEditorFragment();
+        return fragment;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class MessageEditorFragment extends Fragment {
 
         ArrayList<Message.Recipient> contacts = new ArrayList<>();
         try {
-            contacts = DaggerSingletonComponent.create().contactsDataSource().getContacts();//todo proper data injection
+            contacts = singletonComponent.contactsDataSource().getContacts();
         } catch (RuntimeException e) {
             Toast.makeText(getContext(), getString(R.string.error_permission_contacts),
                     Toast.LENGTH_SHORT).show();
