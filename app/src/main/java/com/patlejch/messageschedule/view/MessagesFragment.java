@@ -26,12 +26,6 @@ public class MessagesFragment extends Fragment {
     private ObservableField.OnPropertyChangedCallback removeMessageCallback;
     private SingletonComponent singletonComponent;
 
-    public static MessagesFragment newInstance(SingletonComponent singletonComponent) {
-        MessagesFragment fragment =  new MessagesFragment();
-        fragment.setSingletonComponent(singletonComponent);
-        return fragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,

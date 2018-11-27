@@ -47,6 +47,7 @@ public class MessageEditorActivity extends AppCompatActivity {
         viewModel = findOrCreateViewModel();
         viewModel.setNavigator(navigator);
         fragment.setViewModel(viewModel);
+        fragment.setSingletonComponent(singletonComponent);
 
         Toolbar toolbar = findViewById(R.id.toolbar_message_editor);
         setSupportActionBar(toolbar);
@@ -98,7 +99,7 @@ public class MessageEditorActivity extends AppCompatActivity {
 
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(TAG_EDITOR_FRAGMENT);
         if (fragment == null) {
-            fragment = MessageEditorFragment.newInstance(singletonComponent);
+            fragment = new MessageEditorFragment();
             Bundle bundle = new Bundle();
             bundle.putString(MessageEditorFragment.ARGUMENT_MESSAGE_ID,
                     getIntent().getStringExtra(MessageEditorFragment.ARGUMENT_MESSAGE_ID));

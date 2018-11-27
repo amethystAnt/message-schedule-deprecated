@@ -44,12 +44,6 @@ public class MessageEditorFragment extends Fragment {
 
     public MessageEditorFragment() { }
 
-    public static MessageEditorFragment newInstance(@NonNull SingletonComponent singletonComponent) {
-        MessageEditorFragment fragment = new MessageEditorFragment();
-        fragment.setSingletonComponent(singletonComponent);
-        return fragment;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

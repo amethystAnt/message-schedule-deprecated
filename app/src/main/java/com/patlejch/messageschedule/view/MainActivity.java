@@ -162,13 +162,14 @@ public class MainActivity extends AppCompatActivity {
             if (viewmodel != null) {
                 fragment.setViewModel(viewmodel);
             }
+            fragment.setSingletonComponent(singletonComponent);
             return fragment;
 
         }
 
         @Override
         public Fragment getItem(int position) {
-            return MessagesFragment.newInstance(singletonComponent);
+            return new MessagesFragment();
         }
 
         @Override
